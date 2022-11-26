@@ -26,11 +26,15 @@ class Wallet {
 
     try {
       const _provider = await provider.install()
-      this.#provider = _provider
-      this.#store.providerName = _provider.name
+      this.#setProvider(_provider)
     } catch (error: any) {
       this.#store.error = error.message
     }
+  }
+
+  #setProvider(provider: Provider) {
+    this.#provider = provider
+    this.#store.providerName = provider.name
   }
 
   async connect() {
