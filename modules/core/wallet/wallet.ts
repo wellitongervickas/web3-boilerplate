@@ -1,5 +1,6 @@
 import type { Store } from '@modules/core/wallet/store'
 import type { Provider } from '@modules/core/types/wallet'
+import { ProviderErrors } from '../types/error'
 
 type Options = {
   defaultChainId?: number
@@ -25,22 +26,20 @@ class Wallet {
     this.#store.error = ''
 
     try {
-      const _provider = await provider.install()
-      this.#setProvider(_provider)
+      await provider.install()
+      this.#setProvider(provider)
     } catch (error: any) {
       this.#store.error = error.message
     }
   }
 
   #setProvider(provider: Provider) {
-    this.#provider = provider
     this.#store.providerName = provider.name
+    this.#provider = provider
   }
 
   async connect() {
     if (!this.#provider) {
-      this.#store.error = 'Wallet: provider is not available'
-      this.#store.updateDisconnectedAccount()
       return
     }
 
@@ -48,12 +47,15 @@ class Wallet {
     this.#store.error = ''
 
     try {
-      this.#setProviderListeners()
       await this.#provider.login()
       await this.#refetchAccount()
+      this.#setProviderListeners()
     } catch (error: any) {
       this.#store.error = error.message
-      this.#store.updateDisconnectedAccount()
+
+      if (error.cause.code !== ProviderErrors.UserRejected) {
+        this.disconnect()
+      }
     } finally {
       this.#store.connecting = false
     }
@@ -81,9 +83,9 @@ class Wallet {
   async disconnect() {
     await this.#provider?.logout()
 
-    this.#provider = undefined
-
     this.#store.updateDisconnectedAccount()
+
+    this.#provider = undefined
   }
 
   async #onConnect() {
@@ -98,7 +100,8 @@ class Wallet {
         this.#setProviderListeners()
         this.#store.updateConnectedAccount(account)
       }
-    } catch (_) {
+    } catch (error: any) {
+      this.#store.error = error.message
       this.#store.updateDisconnectedAccount()
     }
   }

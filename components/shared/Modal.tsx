@@ -31,17 +31,15 @@ const Modal = ({ children, setIsOpen, isOpen }: ModalProps) => {
       hidden={!isOpen}
       className={classnames.merge([
         'absolute right-0 top-0 bottom-0 left-0 z-[1000] ',
-        'h-full w-full bg-black bg-opacity-30',
+        'h-full w-full bg-black/30',
         'flex items-center justify-center',
-        ' transition-all duration-300 ',
+        'transition-all duration-300 ',
         isOpen ? 'visible' : 'invisible'
       ])}
     >
       <div
         className={classnames.merge([
-          'relative z-[98] bg-white',
-          'h-screen min-h-[60px] w-screen min-w-[60px] md:h-auto md:w-auto',
-          'transform transition-all duration-300 md:rounded-md lg:mx-0',
+          'relative z-[98] transform transition-all duration-300 lg:mx-0',
           isBoxOpen ? 'opacity-100' : 'opacity-0'
         ])}
       >
@@ -62,7 +60,7 @@ const Modal = ({ children, setIsOpen, isOpen }: ModalProps) => {
       <div
         className={classnames.merge([
           'absolute right-0 top-0 bottom-0 left-0 z-[97]',
-          'h-full w-full bg-blue-900 bg-opacity-30 blur-[99%]'
+          'h-full w-full bg-gray-900/80 blur-[99%]'
         ])}
         onClick={() => doChangeBoxOpened(false)}
       />

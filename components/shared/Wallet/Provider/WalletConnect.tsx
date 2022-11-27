@@ -9,16 +9,15 @@ const provider = new WalletConnect()
 export const ProviderWalletConnect = () => {
   const { wallet, state } = useDapp()
 
-  const handleConnect = async () => {
+  const handleConnect = () => {
     if (state.connecting) return
-    await wallet.use(provider)
-    await wallet.connect()
+    wallet.use(provider).then(wallet.connect.bind(wallet))
   }
 
   return (
     <button
       title={provider.name}
-      className='rounded-md bg-neutral-200 p-2 transition-colors duration-150 hover:bg-neutral-200/50'
+      className='rounded-md bg-neutral-300 p-2 transition-colors duration-150 hover:bg-neutral-400/50'
       onClick={handleConnect}
     >
       <div className='relative h-8 w-8'>

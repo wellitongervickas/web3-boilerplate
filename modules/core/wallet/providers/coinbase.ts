@@ -6,13 +6,13 @@ import type {
   Listener
 } from '@ethersproject/providers'
 
-import Signer from '@modules/core/wallet/signer'
-
+import { utils, providers } from 'ethers'
 import CoinbaseWalletSDK, { CoinbaseWalletProvider } from '@coinbase/wallet-sdk'
 
-import { utils } from 'ethers'
-import { providers } from 'ethers'
+import Signer from '@modules/core/wallet/signer'
 import appConfig from '@app.config'
+import { ProviderErrors } from '@modules/core/types/error'
+import Logger from '@modules/utils/logger'
 
 class Coinbase implements Provider {
   readonly name = 'coinbase'
@@ -39,22 +39,26 @@ class Coinbase implements Provider {
       )
 
       this.signer = new Signer(this.instance.getSigner())
-
-      return this
     } else {
-      throw new Error(`Provider: ${this.name} is not available`)
+      Logger.error(`${this.name} is not available`, ProviderErrors.NotAvailable)
     }
   }
 
   async login(): Promise<void> {
     if (!this.#coinbaseInstance?.request) {
-      throw new Error(`Provider: ${this.name} could not connect your wallet`)
-    }
-
-    try {
-      await this.#coinbaseInstance.request({ method: 'eth_requestAccounts' })
-    } catch (error) {
-      throw new Error(`Provider: ${this.name} could not connect your account`)
+      Logger.error(
+        `${this.name} is not initialized`,
+        ProviderErrors.NotInitialized
+      )
+    } else {
+      try {
+        await this.#coinbaseInstance.request({ method: 'eth_requestAccounts' })
+      } catch (_) {
+        Logger.error(
+          `${this.name} has rejected by user`,
+          ProviderErrors.UserRejected
+        )
+      }
     }
   }
 
@@ -64,18 +68,22 @@ class Coinbase implements Provider {
 
   async switchNetwork(chainId: number) {
     if (!this.#coinbaseInstance?.request) {
-      throw new Error(`Provider: ${this.name} could not switch network`)
-    }
-
-    try {
-      await this.#coinbaseInstance.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: utils.hexValue(chainId) }]
-      })
-    } catch (_) {
-      throw new Error(
-        `Provider: ${this.name} could not switch to network id ${chainId}`
+      Logger.error(
+        `${this.name} is not initialized`,
+        ProviderErrors.NotInitialized
       )
+    } else {
+      try {
+        await this.#coinbaseInstance.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: utils.hexValue(chainId) }]
+        })
+      } catch (_) {
+        Logger.error(
+          ` ${this.name} could not switch to network id ${chainId}`,
+          ProviderErrors.SwitchNetworkChainId
+        )
+      }
     }
   }
 

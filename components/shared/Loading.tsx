@@ -17,7 +17,7 @@ const Loading = ({ maxPins, className, pinsClassName }: LoadingProps) => {
     <div
       className={classnames.merge([
         className,
-        'flex flex-row items-center justify-between gap-2'
+        'flex flex-row items-center justify-between space-x-2'
       ])}
     >
       {pins.map((_, index) => (

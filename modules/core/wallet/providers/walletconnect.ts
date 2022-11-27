@@ -3,10 +3,13 @@ import type { Provider } from '@modules/core/types/wallet'
 import type { Web3Provider, Listener } from '@ethersproject/providers'
 
 import WalletConnectProvider from '@walletconnect/web3-provider'
+import { providers, utils } from 'ethers'
+
 import Signer from '@modules/core/wallet/signer'
-import { providers } from 'ethers'
-import { utils } from 'ethers'
 import appConfig from '@app.config'
+
+import { ProviderErrors } from '@modules/core/types/error'
+import Logger from '@modules/utils/logger'
 
 type Rpc = {
   [key: number]: string
@@ -22,7 +25,7 @@ class WalletConnect implements Provider {
   async install() {
     const _walletConnect = new WalletConnectProvider({
       qrcodeModalOptions: {
-        desktopLinks: ['ledger', 'wallet', 'crypto', 'wallet3'],
+        desktopLinks: ['ledger', 'wallet', 'crypto'],
         mobileLinks: ['rainbow', 'trust']
       },
       infuraId: appConfig.dapp.infuraId,
@@ -36,22 +39,26 @@ class WalletConnect implements Provider {
       this.#walletConnectInstance = _walletConnect
       this.instance = new providers.Web3Provider(_walletConnect, 'any')
       this.signer = new Signer(this.instance.getSigner())
-
-      return this
     } else {
-      throw new Error(`Provider: ${this.name} is not available`)
+      Logger.error(`${this.name} is not available`, ProviderErrors.NotAvailable)
     }
   }
 
   async login(): Promise<void> {
     if (!this.#walletConnectInstance?.enable) {
-      throw new Error(`Provider: ${this.name} could not connect your wallet`)
-    }
-
-    try {
-      await this.#walletConnectInstance?.enable()
-    } catch (error) {
-      throw new Error(`Provider: ${this.name} could not connect your account`)
+      Logger.error(
+        `${this.name} is not initialized`,
+        ProviderErrors.NotInitialized
+      )
+    } else {
+      try {
+        await this.#walletConnectInstance.enable()
+      } catch (error) {
+        Logger.error(
+          `${this.name} has rejected by user`,
+          ProviderErrors.UserRejected
+        )
+      }
     }
   }
 
@@ -61,18 +68,22 @@ class WalletConnect implements Provider {
 
   async switchNetwork(chainId: number) {
     if (!this.#walletConnectInstance?.request) {
-      throw new Error(`Provider: ${this.name} could not switch network`)
-    }
-
-    try {
-      await this.#walletConnectInstance.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: utils.hexValue(chainId) }]
-      })
-    } catch (_) {
-      throw new Error(
-        `Provider: ${this.name} could not switch to network id ${chainId}`
+      Logger.error(
+        `${this.name} is not initialized`,
+        ProviderErrors.NotInitialized
       )
+    } else {
+      try {
+        await this.#walletConnectInstance.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: utils.hexValue(chainId) }]
+        })
+      } catch (_) {
+        Logger.error(
+          ` ${this.name} could not switch to network id ${chainId}`,
+          ProviderErrors.SwitchNetworkChainId
+        )
+      }
     }
   }
 

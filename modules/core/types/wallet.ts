@@ -6,7 +6,7 @@ interface Provider {
   name: string
   signer?: Signer
   instance?: Web3Provider
-  install(): Promise<Provider>
+  install(): Promise<void>
   login(): Promise<void>
   logout(): Promise<void>
   switchNetwork(chainId: number): Promise<void>

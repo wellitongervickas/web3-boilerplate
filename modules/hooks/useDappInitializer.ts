@@ -19,10 +19,7 @@ function useDappInitializer() {
           state.providerName as keyof typeof providers
         ]()
 
-        wallet
-          .use(provider)
-          .then(wallet.connect.bind(wallet))
-          .catch(wallet.disconnect.bind(wallet))
+        wallet.use(provider).then(wallet.connect.bind(wallet))
       }
     })
   }, [isDappInitialized, state.connected, state.providerName, wallet])

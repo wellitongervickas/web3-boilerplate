@@ -9,6 +9,14 @@ const routes = [
   {
     href: '/',
     label: 'Home'
+  },
+  {
+    href: '/about',
+    label: 'About us'
+  },
+  {
+    href: '/faq',
+    label: 'F.A.Q'
   }
 ]
 
@@ -22,7 +30,8 @@ const NavMain = (props: NavMainProps) => (
     {routes.map((route) => (
       <li key={route.href}>
         <Link
-          activeclass='text-primary-500'
+          defaultClass='text-primary-100'
+          activeClass='text-primary-500'
           className='flex items-center justify-center transition-colors duration-150 hover:text-primary-500'
           href={route.href}
         >

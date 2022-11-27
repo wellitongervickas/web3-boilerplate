@@ -6,11 +6,12 @@ import type {
   Listener
 } from '@ethersproject/providers'
 
-import Signer from '@modules/core/wallet/signer'
-
 import detectEthereumProvider from '@metamask/detect-provider'
-import { utils } from 'ethers'
-import { providers } from 'ethers'
+import { utils, providers } from 'ethers'
+
+import Signer from '@modules/core/wallet/signer'
+import { ProviderErrors } from '@modules/core/types/error'
+import Logger from '@modules/utils/logger'
 
 interface MetaMaskInstance extends ExternalProvider {
   on(eventName: string, listener: Listener): void
@@ -24,28 +25,35 @@ class Metamask implements Provider {
   signer: Signer | undefined
 
   async install() {
-    const _ethereum = await detectEthereumProvider()
+    const _ethereum = await detectEthereumProvider({
+      mustBeMetaMask: true,
+      timeout: 0
+    })
 
     if (_ethereum) {
       this.#ethereum = _ethereum
       this.instance = new providers.Web3Provider(this.#ethereum, 'any')
       this.signer = new Signer(this.instance.getSigner())
-
-      return this
     } else {
-      throw new Error(`Provider: ${this.name} is not available`)
+      Logger.error(`${this.name} is not available`, ProviderErrors.NotAvailable)
     }
   }
 
   async login(): Promise<void> {
     if (!this.#ethereum?.request) {
-      throw new Error(`Provider: ${this.name} could not connect your wallet`)
-    }
-
-    try {
-      await this.#ethereum.request({ method: 'eth_requestAccounts' })
-    } catch (error) {
-      throw new Error(`Provider: ${this.name} could not connect your account`)
+      Logger.error(
+        `${this.name} is not initialized`,
+        ProviderErrors.NotInitialized
+      )
+    } else {
+      try {
+        await this.#ethereum.request({ method: 'eth_requestAccounts' })
+      } catch (_) {
+        Logger.error(
+          `${this.name} has rejected by user`,
+          ProviderErrors.UserRejected
+        )
+      }
     }
   }
 
@@ -55,18 +63,22 @@ class Metamask implements Provider {
 
   async switchNetwork(chainId: number) {
     if (!this.#ethereum?.request) {
-      throw new Error(`Provider: ${this.name} could not switch network`)
-    }
-
-    try {
-      await this.#ethereum.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: utils.hexValue(chainId) }]
-      })
-    } catch (_) {
-      throw new Error(
-        `Provider: ${this.name} could not switch to network id ${chainId}`
+      Logger.error(
+        `${this.name} is not initialized`,
+        ProviderErrors.NotInitialized
       )
+    } else {
+      try {
+        await this.#ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: utils.hexValue(chainId) }]
+        })
+      } catch (_) {
+        Logger.error(
+          ` ${this.name} could not switch to network id ${chainId}`,
+          ProviderErrors.SwitchNetworkChainId
+        )
+      }
     }
   }
 

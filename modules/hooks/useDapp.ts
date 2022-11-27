@@ -6,7 +6,7 @@ import { Persistence } from '@hookstate/persistence'
 import { useEffect, useState } from 'react'
 import dom from '@modules/utils/dom'
 
-const persistence = Persistence('tx_1.wallet')
+const persistence = Persistence('dapp')
 
 export function useDapp() {
   const globalState = useHookstate<State>(state)

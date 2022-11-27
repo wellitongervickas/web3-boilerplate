@@ -8,7 +8,9 @@ import classnames from '@modules/utils/classnames'
 interface LinkProps {
   title?: string
   children: ReactNode
-  activeclass?: string
+  activeClass?: string
+  defaultClass?: string
+
   className?: string
   href: string
   as?: string
@@ -16,7 +18,8 @@ interface LinkProps {
 
 const Link = ({
   children,
-  activeclass,
+  activeClass,
+  defaultClass,
   className,
   href,
   ...rest
@@ -33,10 +36,10 @@ const Link = ({
     () =>
       classnames.merge([
         className,
-        isCurrentPath && activeclass,
+        !isCurrentPath ? defaultClass : activeClass,
         child?.props?.className
       ]),
-    [className, activeclass, child, isCurrentPath]
+    [className, activeClass, defaultClass, child, isCurrentPath]
   )
 
   return (

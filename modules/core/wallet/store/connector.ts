@@ -44,7 +44,6 @@ class Connector {
   }
 
   updateDisconnectedAccount() {
-    this.providerName = ''
     this.connected = false
     this.connecting = false
     this.address = ''

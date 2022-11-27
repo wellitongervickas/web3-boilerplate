@@ -4,17 +4,19 @@ import classnames from '@modules/utils/classnames'
 
 interface LayoutDefaultProps {
   children: ReactNode
+  className?: string
 }
 
-export const LayoutDefault = ({ children }: LayoutDefaultProps) => {
+export const LayoutDefault = ({ children, className }: LayoutDefaultProps) => {
   return (
     <div
       className={classnames.merge([
-        'flex h-screen flex-col bg-neutral-800 text-neutral-200'
+        className,
+        ' overflow-y-auto text-neutral-200'
       ])}
     >
       <Header />
-      <main className='flex-1'>
+      <main>
         <div className='py-5 container'>{children}</div>
       </main>
     </div>

@@ -36,7 +36,7 @@ const Navbar = () => {
         />
       </div>
       <nav className='hidden md:block'>
-        <NavMain className='flex space-x-4 ' />
+        <NavMain className='flex space-x-4' />
       </nav>
       <nav
         className={classnames.merge([

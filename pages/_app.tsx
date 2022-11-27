@@ -19,7 +19,7 @@ export default function App({ Component, pageProps }: AppProps) {
           html,
           body,
           #__next {
-            height: 100vh;
+            height: 100%;
           }
         `}
       </style>
@@ -31,7 +31,7 @@ export default function App({ Component, pageProps }: AppProps) {
           content={pageProps.description || appConfig.meta.description}
         />
       </Head>
-      <LayoutDefault>
+      <LayoutDefault className={'h-full bg-gray-900'}>
         <Component {...pageProps} />
       </LayoutDefault>
     </>

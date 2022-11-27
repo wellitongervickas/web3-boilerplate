@@ -12,12 +12,12 @@ export const Header = ({ className }: HeaderProps) => {
     <header
       className={classnames.merge([
         className,
-        'border-b border-neutral-700 container',
+        'border-b border-neutral-700',
         'flex items-center justify-between p-4 md:p-5'
       ])}
     >
       <Logo />
-      <div className='flex items-center justify-between gap-4'>
+      <div className='flex items-center justify-between gap-8'>
         <Navbar />
         <WalletConnect className='hidden md:block' />
       </div>
